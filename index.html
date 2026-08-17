@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#061510">
+  <meta name="description" content="Исследовательский проект Наиля Мурзакаева: от геометрии алмазной фрезы к качеству кромочного шва и экономике мебельного производства.">
+  <title>От инструмента — к управляемому качеству</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="overrides.css">
+  <link rel="stylesheet" href="science.css">
+  <link rel="stylesheet" href="wow.css">
+  <link rel="stylesheet" href="motion.css">
+  <link rel="stylesheet" href="anatomy.css">
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="progress" aria-hidden="true"><i></i></div>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">λ</span><span>Наиль Мурзакаев<small>исследовательский проект • СПбГЛТУ</small></span></a>
+    <nav aria-label="Основная навигация">
+      <a href="#logic">Логика</a><a href="#research">Исследование</a><a href="#results">Задел</a><a href="#lab">Лаборатория</a><a href="#calculator">Калькулятор</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="kicker">ПРОЕКТ ДЛЯ АСПИРАНТУРЫ</p>
+        <h1>От инструмента —<br><span>к управляемому качеству</span></h1>
+        <p class="lead">Как геометрия алмазной фуговальной фрезы превращается в качество торца, свойства кромочного шва и экономический результат.</p>
+        <div class="actions"><a class="button primary" href="#calculator">Рассчитать вариант</a><a class="button" href="#research">Изучить проект</a></div>
+        <div class="status"><i></i><span>Концепция и экономическая модель разработаны. Технологические зависимости предстоит проверить экспериментально.</span></div>
+      </div>
+      <figure class="hero-visual"><img src="assets/hero.png" alt="Алмазные фуговальные фрезы в промышленной студийной съёмке"><figcaption>Инструмент — только начало технологической цепочки</figcaption></figure>
+    </section>
+
+    <section class="section problem" id="problem">
+      <div class="wrap">
+        <p class="eyebrow">ПРОБЛЕМА</p><h2>Качество мебели часто пытаются «докупить»</h2>
+        <p class="intro">Предприятие устанавливает PUR- или laser-систему, но оставляет прежнюю фрезу и режимы. Дорогая технология наносится на нестабильно подготовленный торец и не раскрывает свой потенциал.</p>
+        <div class="cards three">
+          <article class="card"><b>По привычке</b><p>Инструмент выбирают по цене, поставщику или прошлому опыту.</p></article>
+          <article class="card gold"><b>Без системы</b><p>Фрезу, клей, скорость и качество рассматривают раздельно.</p></article>
+          <article class="card"><b>Дорогой переход</b><p>Покупают PUR или laser, не проверяя готовность предыдущей операции.</p></article>
+        </div>
+        <blockquote>Качество клеевого соединения начинает формироваться ещё до нанесения клея.</blockquote>
+      </div>
+    </section>
+
+    <section class="section" id="logic">
+      <div class="wrap">
+        <p class="eyebrow">ЦЕНТРАЛЬНАЯ ЛОГИКА</p><h2>Инструмент → Торец → Шов → Качество → Экономика</h2>
+        <div class="chain" aria-label="Причинно-следственная цепочка исследования">
+          <div><span>01</span><b>Геометрия</b><small>аксиальный угол λ</small></div><i>→</i>
+          <div><span>02</span><b>Резание</b><small>сила • нагрузка • шум</small></div><i>→</i>
+          <div><span>03</span><b>Торец</b><small>Ra/Rz • сколы • микрорельеф</small></div><i>→</i>
+          <div><span>04</span><b>Шов</b><small>прочность • вода • отслаивание</small></div><i>→</i>
+          <div><span>05</span><b>Результат</b><small>скорость • брак • TCO</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section angle" id="research">
+      <div class="wrap split">
+        <div>
+          <p class="eyebrow">НАУЧНЫЙ РЫЧАГ</p><h2>Аксиальный угол меняет характер резания</h2>
+          <p class="intro">С ростом λ рез становится более скользящим. Расчётная модель предполагает уменьшение эффективной толщины срезаемого слоя и силы, но величина реального эффекта должна быть установлена экспериментально.</p>
+          <div class="formula">h<sub>эфф</sub> = h · cos λ<br>F<sub>c</sub>(λ) = F<sub>c</sub>(0) · cos<sup>p</sup> λ</div>
+          <label class="range-label" for="angleRange"><span>Аксиальный угол</span><output id="angleOut">48°</output></label>
+          <input id="angleRange" type="range" min="0" max="70" value="48">
+          <div class="angle-results"><div><small>h<sub>эфф</sub> / h</small><strong id="chipRatio">0,67</strong></div><div><small>F<sub>c</sub> / F<sub>0</sub>, p=0,6</small><strong id="forceRatio">0,79</strong></div><div><small>стоимость владения</small><strong id="angleCost">0,62 ₽/м</strong></div></div>
+          <p class="micro">Параметры резания — расчётный ориентир. Стоимость — интерполяция между рассчитанными вариантами, а не доказанная причинная зависимость.</p>
+        </div>
+        <div class="joint-panel">
+          <img src="assets/eva-pur.png" alt="Макросравнение кромочного шва EVA и PUR">
+          <div class="joint-captions"><span><b>EVA</b> базовая система</span><span><b>PUR</b> основной объект</span><span><b>LASER</b> перспективная проверка</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="wrap">
+        <p class="eyebrow">НАУЧНЫЙ ЗАДЕЛ</p><h2>Магистерская дала экономическую основу</h2>
+        <p class="intro">В магистерской работе сравнивались шесть геометрий по полному пробегу, стоимости владения и окупаемости мероприятий. Это расчётный научный задел и исходная гипотеза аспирантского эксперимента.</p>
+        <div class="master-inputs"><div><b>Объект сравнения</b><span>DP-фрезы 15°, 30°, 35°, 48°, 54° и 70°</span></div><div><b>Модельный объём</b><span>около 40 000 пог. м кромки в месяц</span></div><div><b>Состав TCO</b><span>цена + переточки + резервный комплект</span></div><div><b>Инвестиционная модель</b><span>горизонт 3 года, ставка дисконтирования 20%</span></div></div>
+        <div class="kpis"><div><strong>≈18 000</strong><span>пог. м/мес — ориентир перехода</span></div><div><strong>1,05 млн ₽</strong><span>расчётный NPV за 3 года</span></div><div><strong>0,76 года</strong><span>дисконтированный срок окупаемости</span></div><div><strong>146,8%</strong><span>расчётный IRR</span></div></div>
+        <div class="ownership-figure">
+          <div class="figure-head"><div><p class="eyebrow">РАСЧЁТНЫЕ РЕЗУЛЬТАТЫ</p><h3>Полный пробег и стоимость владения</h3></div><div class="chart-legend"><span class="mileage-key">пробег, тыс. м</span><span class="cost-key">₽/пог. м</span></div></div>
+          <svg class="ownership-chart" viewBox="0 0 1000 470" role="img" aria-label="Полный пробег и стоимость владения фрез по углам">
+            <g class="chart-grid"><line x1="70" y1="385" x2="950" y2="385"/><line x1="70" y1="280" x2="950" y2="280"/><line x1="70" y1="175" x2="950" y2="175"/><line x1="70" y1="70" x2="950" y2="70"/></g>
+            <g class="bars"><rect x="105" y="369" width="70" height="16"/><rect x="250" y="361" width="70" height="24"/><rect x="395" y="316" width="70" height="69"/><rect x="540" y="265" width="70" height="120"/><rect x="685" y="218" width="70" height="167"/><rect x="830" y="98" width="70" height="287"/></g>
+            <g class="bar-values"><text x="140" y="357">153</text><text x="285" y="349">231</text><text x="430" y="304">660</text><text x="575" y="253">1 147</text><text x="720" y="206">1 591</text><text x="865" y="86">2 730</text></g>
+            <polyline class="cost-line" points="140,106 285,169 430,241 575,275 720,289 865,341"/>
+            <g class="cost-points"><circle cx="140" cy="106" r="7"/><circle cx="285" cy="169" r="7"/><circle cx="430" cy="241" r="7"/><circle cx="575" cy="275" r="7"/><circle cx="720" cy="289" r="7"/><circle cx="865" cy="341" r="7"/></g>
+            <g class="cost-values"><text x="140" y="88">1,56</text><text x="285" y="151">1,21</text><text x="430" y="223">0,81</text><text x="575" y="257">0,62</text><text x="720" y="318">0,54</text><text x="865" y="326">0,25</text></g>
+            <g class="x-labels"><text x="140" y="420">15°</text><text x="285" y="420">30°</text><text x="430" y="420">35°</text><text x="575" y="420">48°</text><text x="720" y="420">54°</text><text x="865" y="420">70°</text><text class="sub" x="285" y="442">база</text><text class="sub" x="575" y="442">DIAREX</text><text class="sub" x="865" y="442">p-System</text></g>
+          </svg>
+          <p class="chart-note">Столбцы — расчётный полный пробег. Золотая линия — удельная стоимость владения. Более низкая стоимость 70° не означает, что он лучший по инвестиционному результату.</p>
+        </div>
+        <div class="table-wrap master-table"><table><thead><tr><th>Показатель</th><th>15°</th><th>30° база</th><th>35°</th><th>48° DIAREX</th><th>54°</th><th>70° p-System</th></tr></thead><tbody><tr><td>Полный пробег, тыс. пог. м</td><td>153</td><td>231</td><td>660</td><td>1 147</td><td>1 591</td><td>2 730</td></tr><tr><td>Стоимость владения, ₽/пог. м</td><td>1,56</td><td>1,21</td><td>0,81</td><td>0,62</td><td>0,54</td><td>0,25</td></tr></tbody></table></div>
+        <div class="measures"><h3>Рассматриваемые мероприятия</h3><div class="measure-grid"><article><span>М1</span><b>30° → 54°</b><small>CAPEX 372 тыс. ₽ • NPV 707 тыс. ₽</small></article><article class="selected"><span>М2</span><b>30° → DIAREX 48°</b><small>CAPEX 340 тыс. ₽ • NPV 856 тыс. ₽</small></article><article><span>М3</span><b>30° → p-System 70°</b><small>CAPEX 1,2 млн ₽ • NPV 577 тыс. ₽</small></article><article><span>М6</span><b>30° → SmartJointer 35°</b><small>CAPEX 220 тыс. ₽ • NPV 389 тыс. ₽</small></article></div><p class="chart-note">В версии расчёта магистерского сайта М2 дало лучший баланс между ценой входа и трёхлетним NPV. Расхождения с цифрами питч-презентации связаны с другой комплектацией мероприятия; перед публикацией нужно зафиксировать один сценарий.</p></div>
+        <div class="thesis"><b>Главный вывод:</b> единого оптимального инструмента нет. Нужно искать область рациональных решений для конкретных условий.</div>
+      </div>
+    </section>
+
+    <section class="section experiment">
+      <div class="wrap split reverse">
+        <figure><img src="assets/experiment.png" alt="Схема экспериментального исследования от геометрии до свойств шва"></figure>
+        <div><p class="eyebrow">ЭКСПЕРИМЕНТ</p><h2>От резания — к свойствам готового шва</h2>
+          <ol class="steps"><li><b>Геометрия</b><span>30° • 45–48° • 54° • при возможности 70°</span></li><li><b>Режим и износ</b><span>подача • съём • стадии затупления</span></li><li><b>Торец</b><span>Ra • Rz • сколы • микрорельеф</span></li><li><b>Шов</b><span>EVA • PUR • laser; прочность и вода 24/72 ч</span></li><li><b>Валидация</b><span>повторы, статистика и проверка на линии</span></li></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wow-section" id="lab">
+      <div class="wrap">
+        <p class="eyebrow">ИНТЕРАКТИВНАЯ ЛАБОРАТОРИЯ</p><h2>Проследить весь путь качества</h2>
+        <div class="stage-switch" role="tablist"><button class="active" data-stage="masters" type="button">Магистратура</button><button data-stage="phd" type="button">Аспирантура</button></div>
+        <div class="stage-content" id="stageContent"></div>
+
+        <article class="wow-card anatomy-card"><div class="card-heading"><span>01</span><div><h3>Анатомия кромочного соединения</h3><p>Выберите слой слева. Справа показан реалистичный разрез и последовательность наложения слоёв.</p></div></div><div class="anatomy-layout"><div><div class="edge-anatomy"><button data-edge="Кромочный материал задаёт видимую поверхность, геометрию кромки и защиту торца.">Кромочный материал</button><button data-edge="Тонкий клеевой слой передаёт нагрузку, компенсирует часть неровностей и ограничивает проникновение влаги.">Клеевой слой</button><button data-edge="Именно здесь после прифуговки остаются микрорельеф, сколы и волнистость, влияющие на контакт с клеем.">Обработанный торец</button><button data-edge="Плита задаёт плотность, структуру стружки, покрытие и разброс исходных свойств.">ЛДСП / МДФ</button></div><p id="edgeExplain" class="edge-explain">Выберите слой.</p></div><figure class="anatomy-photo"><img src="assets/edge-anatomy-layers.png" alt="Разрез плиты, обработанного торца, тонкого клеевого слоя и кромочного материала"><figcaption>Слои показаны с небольшим разносом только для наглядности.</figcaption></figure></div></article>
+
+        <div class="decision-lab">
+          <div><p class="eyebrow">КАРТА РЕШЕНИЙ</p><h3>Не одна «лучшая» фреза, а область выбора</h3></div>
+          <div class="decision-controls"><label>Объём, пог. м/мес<input id="mapVolume" type="range" min="2000" max="250000" step="1000" value="40000"><output id="mapVolumeOut"></output></label><label>CAPEX, тыс. ₽<input id="mapCapex" type="range" min="100" max="1500" step="50" value="500"><output id="mapCapexOut"></output></label><label>Технология<select id="mapTech"><option>EVA</option><option selected>PUR</option><option>Laser / zero joint</option></select></label></div>
+          <div class="decision-output"><span>Предварительная область</span><strong id="mapResult"></strong><p id="mapNote"></p></div>
+        </div>
+
+        <div class="experiment-matrix"><p class="eyebrow">МАТРИЦА ЭКСПЕРИМЕНТА</p><h3>Соберите будущую точку испытаний</h3><div class="matrix-controls"><label>Угол<select id="mxAngle"><option>30°</option><option>48°</option><option>54°</option><option>70°</option></select></label><label>Материал<select id="mxMaterial"><option>ЛДСП</option><option>МДФ</option></select></label><label>Состояние<select id="mxWear"><option>Новая</option><option>Промежуточный износ</option><option>Предельное</option></select></label><label>Шов<select id="mxGlue"><option>EVA</option><option selected>PUR</option><option>Laser</option></select></label></div><div class="matrix-result" id="matrixResult"></div></div>
+      </div>
+    </section>
+
+    <section class="section investment-section">
+      <div class="wrap"><p class="eyebrow">ИНВЕСТИЦИОННАЯ ЛАБОРАТОРИЯ</p><h2>Проверьте мероприятие на риск</h2>
+        <div class="investment-grid"><div class="investment-inputs"><label>CAPEX, ₽<input id="invCapex" type="number" value="340000"></label><label>Годовой эффект, ₽<input id="invCash" type="number" value="567840"></label><label>Горизонт, лет<input id="invYears" type="number" min="1" max="10" value="3"></label><label>Ставка, %<input id="invRate" type="number" value="20"></label><label>Неопределённость, %<input id="invRisk" type="range" min="0" max="50" value="20"><output id="invRiskOut">20%</output></label><button id="runMonte" class="button primary" type="button">Запустить 10 000 сценариев</button></div><div><div class="investment-kpis"><div><small>NPV</small><strong id="invNpv"></strong></div><div><small>IRR</small><strong id="invIrr"></strong></div><div><small>DPP</small><strong id="invDpp"></strong></div><div><small>P(NPV &gt; 0)</small><strong id="invProb">—</strong></div></div><canvas id="monteChart" width="720" height="280" aria-label="Распределение NPV"></canvas><p class="chart-note">Монте-Карло варьирует годовой эффект в заданном диапазоне. Это сценарная, а не прогнозная модель.</p></div></div>
+      </div>
+    </section>
+
+    <section class="section calc-section" id="calculator">
+      <div class="wrap">
+        <p class="eyebrow">ЦИФРОВОЙ ПРОТОТИП</p><h2>Конструктор сравнения фрез</h2>
+        <p class="intro">Введите параметры инструментов и месячный объём. Модель сравнит стоимость владения. Это экономическая оценка, а не заключение о качестве шва.</p>
+        <div class="calculator">
+          <div class="table-wrap"><table><thead><tr><th>Фреза</th><th>Угол</th><th>Цена, ₽</th><th>Переточек</th><th>Цена переточки</th><th>Резерв, ₽</th><th>Пробег, тыс. м</th><th>₽/пог. м</th></tr></thead><tbody id="cutterRows"></tbody></table></div>
+          <button class="add" id="addCutter" type="button">+ Добавить фрезу</button>
+          <div class="volume"><label for="volumeRange">Объём кромки в месяц <output id="volumeOut">40 000 пог. м</output></label><input id="volumeRange" type="range" min="2000" max="250000" step="1000" value="40000"></div>
+          <div id="costBars" class="cost-bars"></div>
+          <div class="recommendation"><span>Предварительная область по масштабу</span><strong id="scaleRecommendation"></strong><small>Матрица основана на расчётной модели магистерской и будет уточняться экспериментально.</small></div>
+          <button id="printReport" class="report-button" type="button">Сформировать PDF-отчёт</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section evidence">
+      <div class="wrap"><p class="eyebrow">ПРИНЦИП ДОКАЗАТЕЛЬНОСТИ</p><h2>Что известно, а что ещё предстоит проверить</h2>
+        <div class="legend"><div class="known"><b>Установлено расчётом</b><p>TCO, инвестиционная модель, чувствительность и влияние масштаба.</p></div><div class="expected"><b>Ожидаемый эффект</b><p>Снижение сил, рост допустимой подачи, изменение шума и микрорельефа.</p></div><div class="test"><b>Предстоит проверить</b><p>Связь λ → торец → PUR/laser → прочность и влагостойкость.</p></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap"><b>Наиль Мурзакаев</b><span>Исследовательский проект для поступления в аспирантуру СПбГЛТУ</span><p>Качество должно перестать восприниматься только как затрата и стать управляемым активом предприятия.</p></div></footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+.hero{grid-template-columns:1.12fr .88fr}
+.hero h1{font-size:clamp(44px,4.5vw,64px)}
+.hero h1 span{display:block}
+@media(max-width:900px){.hero{grid-template-columns:1fr}}
