@@ -38,11 +38,12 @@ function scaleAdvice(v){if(v<4000)return 'около 30°';if(v<18000)return '30
 function renderCosts(){
   const v=Number(volume.value); $('#volumeOut').textContent=`${fmt(v)} пог. м`;
   const costs=cutters.map(c=>unitCost(c)*v);
-  const referenceVolume=Math.max(100000,v);
+  // Fixed money scale: every bar now visibly grows when volume increases.
+  const referenceVolume=100000;
   const validScaleValues=cutters.map(c=>unitCost(c)*referenceVolume).filter(Number.isFinite);
   const scaleMax=Math.max(...validScaleValues,1);
   $('#costBars').innerHTML=cutters.map((c,i)=>`<div class="cost-row"><b>${c.name||'Без названия'}</b><div class="bar-track"><div class="bar-fill" style="width:${Number.isFinite(costs[i])?Math.max(2,Math.min(100,costs[i]/scaleMax*100)):0}%"></div></div><strong>${Number.isFinite(costs[i])?`${fmt(costs[i])} ₽/мес`:'—'}</strong></div>`).join('');
-  $('#costScaleNote').textContent=`Длина полосы — абсолютные затраты. Правая граница шкалы: ${fmt(scaleMax)} ₽/мес.`;
+  $('#costScaleNote').textContent=`Единая шкала: правая граница ${fmt(scaleMax)} ₽/мес. Все полосы растут вместе с объёмом; полная полоса означает достижение границы, а не «лучший вариант».`;
   $('#scaleRecommendation').textContent=scaleAdvice(v);
 }
 volume.addEventListener('input',renderCosts); renderRows();
@@ -111,10 +112,11 @@ function signedRub(value){const n=Math.round(value),space=String(Math.abs(n)).re
 function renderWizard(){
   const volumeValue=+$('#npvVolume').value,tech=$('#decisionTech').value,factors=decisionFactors(),measures=decisionMeasures();
   const ranked=measures.map(m=>({...m,npv:measureNpv(volumeValue,m,factors)})).sort((a,b)=>b.npv-a.npv),best=ranked[0];
+  const focus=$('#focusMeasure').value;
   const contents=[
     [`Предприятие`,`Задайте масштаб: он определяет, успеет ли более дорогой инструмент выработать свой ресурс.`,[['Объём',`${fmt(volumeValue)} м/мес`],['Сегмент',scaleAdvice(volumeValue)],['База','40 000 м/мес']]],
     [`Технология кромки`,`EVA, PUR и laser не равнозначны. Чем выше требования к шву, тем важнее стабильность подготовленного торца.`,[['Выбрано',tech],['Статус','требует валидации'],['Цель','стабильный шов']]],
-    [`Геометрия и комплектация`,`Сравниваются не ценники, а полные мероприятия с резервом, ресурсом и сервисом.`,[['Вариант М2',$('#m2Variant').selectedOptions[0].textContent.split(' — ')[0]],['Альтернативы','М1 / М2 / М3 / М6'],['Лидер по NPV',best.id]]],
+    [`Геометрия и комплектация`,`Сравниваются не ценники, а полные мероприятия с резервом, ресурсом и сервисом.`,[['Рассматривается',focus],['Альтернативы','М1 / М2 / М3 / М6'],['Лидер по NPV',best.id]]],
     [`Экономический сценарий`,`NPV пересчитывается при каждом изменении объёма, CAPEX и годового эффекта.`,[['Сценарий',factors.label],['Эффект',`${fmt(factors.effect*100)}%`],['CAPEX',`${fmt(factors.capex*100)}%`]]],
     [`Рекомендация`,`Система объясняет выбор и отделяет расчётную экономику от технологических эффектов, которые ещё предстоит доказать.`,[['Лидер',best.id],['NPV',signedRub(best.npv)],['Технология',tech]]]
   ];
@@ -135,25 +137,27 @@ function renderBreakEven(measures,factors,volumeValue){
 }
 function renderDecisionSystem(sync=true){
   const volumeValue=+$('#npvVolume').value,factors=decisionFactors(),measures=decisionMeasures();
+  const focusId=$('#focusMeasure').value;
+  $('#m2VariantField').hidden=focusId!=='М2';
   $('#npvVolumeOut').textContent=`${fmt(volumeValue)} пог. м/мес`;
   $('#customScenario').hidden=$('#npvScenario').value!=='custom';$('#effectFactorOut').textContent=`${$('#effectFactor').value}%`;$('#capexFactorOut').textContent=`${$('#capexFactor').value}%`;
-  const results=measures.map(m=>({...m,npv:measureNpv(volumeValue,m,factors),threshold:breakEven(m,factors)})),best=results.reduce((a,b)=>b.npv>a.npv?b:a),profitable=results.filter(x=>x.npv>=0);
-  $('#npvBars').innerHTML=results.map(m=>`<div class="npv-row${m.id===best.id?' leader':''}"><div class="npv-name"><b>${m.id}</b><small>${m.sub}</small></div><div class="npv-track"><div class="npv-fill${m.npv<0?' negative':''}" style="width:${Math.min(Math.abs(m.npv)/NPV_SCALE,1)*100}%"></div></div><div class="npv-value${m.npv<0?' negative':''}">${signedRub(m.npv)}</div></div>`).join('');
+  const results=measures.map(m=>({...m,npv:measureNpv(volumeValue,m,factors),threshold:breakEven(m,factors)})),best=results.reduce((a,b)=>b.npv>a.npv?b:a),profitable=results.filter(x=>x.npv>=0),focused=results.find(x=>x.id===focusId);
+  $('#npvBars').innerHTML=results.map(m=>`<div class="npv-row${m.id===best.id?' leader':''}${m.id===focusId?' focused':''}"><div class="npv-name"><b>${m.id}</b><small>${m.sub}</small></div><div class="npv-track"><div class="npv-fill${m.npv<0?' negative':''}" style="width:${Math.min(Math.abs(m.npv)/NPV_SCALE,1)*100}%"></div></div><div class="npv-value${m.npv<0?' negative':''}">${signedRub(m.npv)}</div></div>`).join('');
   $('#npvSummary').innerHTML=profitable.length?`При <b>${fmt(volumeValue)}</b> пог. м/мес окупаются: <b>${profitable.map(x=>x.id).join(', ')}</b>. Лучший по NPV — <b>${best.id}</b>.`:`При <b>${fmt(volumeValue)}</b> пог. м/мес ни одно мероприятие не выходит в плюс.`;
   $('#npvMethod').textContent=`Сценарий: ${factors.label}. Горизонт 3 года, ставка 20%. Формула: NPV = −CAPEX + 2,106481 × CF × (V / 40 000).`;
   renderBreakEven(measures,factors,volumeValue);
-  const budget=+$('#mapCapex').value*1000,tech=$('#decisionTech').value,budgetFit=best.capex*factors.capex<=budget;
-  $('#decisionHeadline').textContent=`${best.id} — лидер по NPV при текущих условиях`;
-  $('#decisionReasons').innerHTML=`<div><b>Экономика</b><span>NPV ${signedRub(best.npv)}; порог ${fmt(best.threshold)} м/мес.</span></div><div><b>CAPEX</b><span>${fmt(best.capex*factors.capex)} ₽ — ${budgetFit?'укладывается':'не укладывается'} в заданный лимит ${fmt(budget)} ₽.</span></div><div><b>Технология</b><span>${tech}: требования к торцу должны быть подтверждены экспериментом.</span></div>`;
+  const budget=+$('#mapCapex').value*1000,tech=$('#decisionTech').value,budgetFit=focused.capex*factors.capex<=budget;
+  $('#decisionHeadline').textContent=focused.id===best.id?`${focused.id} — лидер по NPV при текущих условиях`:`${focused.id} можно рассматривать, но лидер по NPV — ${best.id}`;
+  $('#decisionReasons').innerHTML=`<div><b>Выбрано: ${focused.id}</b><span>NPV ${signedRub(focused.npv)}; порог ${fmt(focused.threshold)} м/мес.</span></div><div><b>Сравнение</b><span>${focused.id===best.id?'Выбранный вариант лидирует.':`Разница ${signedRub(best.npv-focused.npv)} в пользу ${best.id}.`}</span></div><div><b>CAPEX</b><span>${fmt(focused.capex*factors.capex)} ₽ — ${budgetFit?'укладывается':'не укладывается'} в лимит ${fmt(budget)} ₽.</span></div><div><b>Технология</b><span>${tech}: требования к торцу предстоит подтвердить.</span></div>`;
   $('#decisionCaveat').textContent=`Выбор ${best.id} — расчётная экономическая рекомендация, а не доказанное преимущество качества шва.`;
-  latestDecision={volume:volumeValue,factors,results,best,profitable,tech,m2Variant:$('#m2Variant').value,scenario:$('#npvScenario').value};
+  latestDecision={volume:volumeValue,factors,results,best,focused,profitable,tech,m2Variant:$('#m2Variant').value,focusMeasure:focusId,scenario:$('#npvScenario').value};
   if(sync){if(volumeValue<=+volume.max){volume.value=volumeValue;renderCosts()}if(volumeValue<=+$('#mapVolume').max){$('#mapVolume').value=volumeValue;mapRecommendation()}$('#decisionTech').value=tech;}
   renderWizard();
 }
-function loadDecisionUrl(){const q=new URLSearchParams(location.search);if(q.has('v'))$('#npvVolume').value=Math.min(80000,Math.max(2000,+q.get('v')||40000));if(['masters','pitch'].includes(q.get('m2')))$('#m2Variant').value=q.get('m2');if(['base','optimistic','pessimistic','custom'].includes(q.get('s')))$('#npvScenario').value=q.get('s');if(q.has('ef'))$('#effectFactor').value=q.get('ef');if(q.has('cf'))$('#capexFactor').value=q.get('cf');if(q.has('tech')&&[...$('#decisionTech').options].some(o=>o.value===q.get('tech')))$('#decisionTech').value=q.get('tech')}
+function loadDecisionUrl(){const q=new URLSearchParams(location.search);if(q.has('v'))$('#npvVolume').value=Math.min(80000,Math.max(2000,+q.get('v')||40000));if(['М1','М2','М3','М6'].includes(q.get('focus')))$('#focusMeasure').value=q.get('focus');if(['masters','pitch'].includes(q.get('m2')))$('#m2Variant').value=q.get('m2');if(['base','optimistic','pessimistic','custom'].includes(q.get('s')))$('#npvScenario').value=q.get('s');if(q.has('ef'))$('#effectFactor').value=q.get('ef');if(q.has('cf'))$('#capexFactor').value=q.get('cf');if(q.has('tech')&&[...$('#decisionTech').options].some(o=>o.value===q.get('tech')))$('#decisionTech').value=q.get('tech')}
 document.querySelectorAll('[data-wizard]').forEach(b=>b.addEventListener('click',()=>{wizardStep=+b.dataset.wizard;renderWizard()}));$('#wizardPrev').addEventListener('click',()=>{wizardStep=Math.max(0,wizardStep-1);renderWizard()});$('#wizardNext').addEventListener('click',()=>{wizardStep=Math.min(4,wizardStep+1);renderWizard()});
-['npvVolume','m2Variant','npvScenario','decisionTech','effectFactor','capexFactor'].forEach(id=>$('#'+id).addEventListener('input',()=>renderDecisionSystem()));
-$('#shareCalculation').addEventListener('click',async()=>{const q=new URLSearchParams({v:$('#npvVolume').value,m2:$('#m2Variant').value,s:$('#npvScenario').value,tech:$('#decisionTech').value,ef:$('#effectFactor').value,cf:$('#capexFactor').value}),url=`${location.origin}${location.pathname}?${q}#decision-system`;history.replaceState(null,'',url);try{await navigator.clipboard.writeText(url);$('#shareStatus').textContent='Ссылка скопирована.'}catch{$('#shareStatus').textContent='Ссылка сохранена в адресной строке.'}});
+['npvVolume','focusMeasure','m2Variant','npvScenario','decisionTech','effectFactor','capexFactor'].forEach(id=>$('#'+id).addEventListener('input',()=>renderDecisionSystem()));
+$('#shareCalculation').addEventListener('click',async()=>{const q=new URLSearchParams({v:$('#npvVolume').value,focus:$('#focusMeasure').value,m2:$('#m2Variant').value,s:$('#npvScenario').value,tech:$('#decisionTech').value,ef:$('#effectFactor').value,cf:$('#capexFactor').value}),url=`${location.origin}${location.pathname}?${q}#decision-system`;history.replaceState(null,'',url);try{await navigator.clipboard.writeText(url);$('#shareStatus').textContent='Ссылка скопирована.'}catch{$('#shareStatus').textContent='Ссылка сохранена в адресной строке.'}});
 loadDecisionUrl();renderDecisionSystem(false);
 
 function escapeHtml(value){

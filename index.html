@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="anatomy.css">
   <link rel="stylesheet" href="decision.css">
+  <link rel="stylesheet" href="refinements.css">
 </head>
 <body>
   <div class="grid-bg" aria-hidden="true"></div>
@@ -89,9 +90,8 @@
         <p class="eyebrow">НАУЧНЫЙ ЗАДЕЛ</p><h2>Магистерская дала экономическую основу</h2>
         <p class="intro">В магистерской работе сравнивались шесть геометрий по полному пробегу, стоимости владения и окупаемости мероприятий. Это расчётный научный задел и исходная гипотеза аспирантского эксперимента.</p>
         <div class="enterprise-model">
-          <div><b>Модельное предприятие</b><strong>ООО «Северо-Западная Мебельная Компания»</strong><span>Условное среднее мебельное производство Санкт‑Петербурга.</span></div>
+          <div><b>Модельное предприятие</b><strong>«Первая мебельная фабрика»</strong><span>Исходная производственная база расчётной модели магистерской работы.</span></div>
           <div><b>Масштаб</b><strong>40 000 пог. м/мес</strong><span>480 000 пог. м кромки в год — верхняя часть среднего сегмента.</span></div>
-          <div><b>Исходная технология</b><strong>Brandt Ambition KDF 670</strong><span>Базовый инструмент — Green Tools GT 30Gr, аксиальный угол 30°.</span></div>
         </div>
         <div class="master-inputs"><div><b>Объект сравнения</b><span>DP-фрезы 15°, 30°, 35°, 48°, 54° и 70°</span></div><div><b>Базовый объём</b><span>40 000 пог. м/мес для всех инвестиционных сценариев</span></div><div><b>Состав TCO</b><span>цена + переточки + резервный комплект</span></div><div><b>Инвестиционная модель</b><span>горизонт 3 года, ставка дисконтирования 20%</span></div></div>
         <div class="kpis"><div><strong>≈18 000</strong><span>пог. м/мес — ориентир перехода</span></div><div><strong>1,05 млн ₽</strong><span>расчётный NPV за 3 года</span></div><div><strong>0,76 года</strong><span>дисконтированный срок окупаемости</span></div><div><strong>146,8%</strong><span>расчётный IRR</span></div></div>
@@ -101,7 +101,7 @@
             <g class="chart-grid"><line x1="70" y1="385" x2="950" y2="385"/><line x1="70" y1="280" x2="950" y2="280"/><line x1="70" y1="175" x2="950" y2="175"/><line x1="70" y1="70" x2="950" y2="70"/></g>
             <g class="bars"><rect x="105" y="369" width="70" height="16"/><rect x="250" y="361" width="70" height="24"/><rect x="395" y="316" width="70" height="69"/><rect x="540" y="265" width="70" height="120"/><rect x="685" y="218" width="70" height="167"/><rect x="830" y="98" width="70" height="287"/></g>
             <g class="bar-values"><text x="140" y="357">153</text><text x="285" y="349">231</text><text x="430" y="304">660</text><text x="575" y="253">1 147</text><text x="720" y="206">1 591</text><text x="865" y="86">2 730</text></g>
-            <polyline class="cost-line" points="140,106 285,169 430,241 575,275 720,289 865,341"/>
+            <polyline class="cost-line" pathLength="1" points="140,106 285,169 430,241 575,275 720,289 865,341"/>
             <g class="cost-points"><circle cx="140" cy="106" r="7"/><circle cx="285" cy="169" r="7"/><circle cx="430" cy="241" r="7"/><circle cx="575" cy="275" r="7"/><circle cx="720" cy="289" r="7"/><circle cx="865" cy="341" r="7"/></g>
             <g class="cost-values"><text x="140" y="88">1,56</text><text x="285" y="151">1,21</text><text x="430" y="223">0,81</text><text x="575" y="257">0,62</text><text x="720" y="318">0,54</text><text x="865" y="326">0,25</text></g>
             <g class="x-labels"><text x="140" y="420">15°</text><text x="285" y="420">30°</text><text x="430" y="420">35°</text><text x="575" y="420">48°</text><text x="720" y="420">54°</text><text x="865" y="420">70°</text><text class="sub" x="285" y="442">база</text><text class="sub" x="575" y="442">DIAREX</text><text class="sub" x="865" y="442">p-System</text></g>
@@ -122,9 +122,17 @@
     </section>
 
     <section class="section experiment">
-      <div class="wrap split reverse">
-        <figure><img src="assets/experiment.png" alt="Схема экспериментального исследования от геометрии до свойств шва"></figure>
-        <div><p class="eyebrow">ЭКСПЕРИМЕНТ</p><h2>От резания — к свойствам готового шва</h2>
+      <div class="wrap">
+        <p class="eyebrow">ЭКСПЕРИМЕНТ</p><h2>От резания — к свойствам готового шва</h2>
+        <p class="intro">Задача — не просто сравнить Ra разных фрез, а проследить, как геометрия и износ формируют торец, а торец — прочность и влагостойкость кромочного шва.</p>
+        <div class="experiment-program">
+          <article><span>01</span><b>Силовой процесс</b><p>Мощность шпинделя, средняя и пиковая нагрузка, оценка силы.</p></article>
+          <article><span>02</span><b>Шум</b><p>Общий уровень и спектр при разных углах, подачах и стадиях затупления.</p></article>
+          <article><span>03</span><b>Качество торца</b><p>Ra, Rz, микрорельеф, сколы, дефекты покрытия и разброс результа.</p></article>
+          <article><span>04</span><b>Свойства шва</b><p>EVA — база, PUR — основной объект, laser — перспектива; отслаивание, прочность, вода 24/72 ч.</p></article>
+        </div>
+        <div class="split reverse experiment-body">
+          <figure><img src="assets/experiment.png" alt="Схема экспериментального исследования от геометрии до свойств шва"></figure>
           <ol class="steps"><li><b>Геометрия</b><span>30° • 45–48° • 54° • при возможности 70°</span></li><li><b>Режим и износ</b><span>подача • съём • стадии затупления</span></li><li><b>Торец</b><span>Ra • Rz • сколы • микрорельеф</span></li><li><b>Шов</b><span>EVA • PUR • laser; прочность и вода 24/72 ч</span></li><li><b>Валидация</b><span>повторы, статистика и проверка на линии</span></li></ol>
         </div>
       </div>
@@ -144,7 +152,7 @@
           <div class="decision-output"><span>Предварительная область</span><strong id="mapResult"></strong><p id="mapNote"></p></div>
         </div>
 
-        <div class="experiment-matrix"><p class="eyebrow">МАТРИЦА ЭКСПЕРИМЕНТА</p><h3>Соберите будущую точку испытаний</h3><div class="matrix-controls"><label>Угол<select id="mxAngle"><option>30°</option><option>48°</option><option>54°</option><option>70°</option></select></label><label>Материал<select id="mxMaterial"><option>ЛДСП</option><option>МДФ</option></select></label><label>Состояние<select id="mxWear"><option>Новая</option><option>Промежуточный износ</option><option>Предельное</option></select></label><label>Шов<select id="mxGlue"><option>EVA</option><option selected>PUR</option><option>Laser</option></select></label></div><div class="matrix-result" id="matrixResult"></div></div>
+        <div class="experiment-matrix"><p class="eyebrow">МАТРИЦА ЭКСПЕРИМЕНТА</p><h3>Соберите будущую точку испытаний</h3><p class="matrix-help">Одна «точка» — это заданная комбинация: угол + материал + износ + тип шва. Повторы таких точек позволяют отделить влияние каждого фактора и их взаимодействий.</p><div class="matrix-controls"><label>Угол<select id="mxAngle"><option>30°</option><option>48°</option><option>54°</option><option>70°</option></select></label><label>Материал<select id="mxMaterial"><option>ЛДСП</option><option>МДФ</option></select></label><label>Состояние<select id="mxWear"><option>Новая</option><option>Промежуточный износ</option><option>Предельное</option></select></label><label>Шов<select id="mxGlue"><option>EVA</option><option selected>PUR</option><option>Laser</option></select></label></div><div class="matrix-result" id="matrixResult"></div></div>
       </div>
     </section>
 
@@ -166,7 +174,8 @@
         </div>
 
         <div class="decision-config">
-          <label>Комплектация М2<select id="m2Variant"><option value="masters">Базовая модель — CAPEX 340 тыс. ₽</option><option value="pitch">Полная комплектация — CAPEX 456 тыс. ₽</option></select></label>
+          <label>Рассматриваемый вариант<select id="focusMeasure"><option value="М1">М1 — 54°</option><option value="М2" selected>М2 — DIAREX 48°</option><option value="М3">М3 — p-System 70°</option><option value="М6">М6 — SmartJointer 35°</option></select></label>
+          <label id="m2VariantField">Комплектация М2<select id="m2Variant"><option value="masters">Базовая модель — CAPEX 340 тыс. ₽</option><option value="pitch">Полная комплектация — CAPEX 456 тыс. ₽</option></select></label>
           <label>Сценарий<select id="npvScenario"><option value="base">Базовый</option><option value="optimistic">Оптимистичный</option><option value="pessimistic">Пессимистичный</option><option value="custom">Пользовательский</option></select></label>
           <label>Технология<select id="decisionTech"><option>EVA</option><option selected>PUR</option><option>Laser / zero joint</option></select></label>
         </div>
@@ -194,7 +203,7 @@
 
     <section class="section investment-section">
       <div class="wrap"><p class="eyebrow">ИНВЕСТИЦИОННАЯ ЛАБОРАТОРИЯ</p><h2>Проверьте мероприятие на риск</h2>
-        <div class="investment-grid"><div class="investment-inputs"><label>CAPEX, ₽<input id="invCapex" type="number" value="340000"></label><label>Годовой эффект, ₽<input id="invCash" type="number" value="567840"></label><label>Горизонт, лет<input id="invYears" type="number" min="1" max="10" value="3"></label><label>Ставка, %<input id="invRate" type="number" value="20"></label><label>Неопределённость, %<input id="invRisk" type="range" min="0" max="50" value="20"><output id="invRiskOut">20%</output></label><button id="runMonte" class="button primary" type="button">Запустить 10 000 сценариев</button></div><div><div class="investment-kpis"><div><small>NPV</small><strong id="invNpv"></strong></div><div><small>IRR</small><strong id="invIrr"></strong></div><div><small>DPP</small><strong id="invDpp"></strong></div><div><small>P(NPV &gt; 0)</small><strong id="invProb">—</strong></div></div><canvas id="monteChart" width="720" height="280" aria-label="Распределение NPV"></canvas><p class="chart-note">Монте-Карло варьирует годовой эффект в заданном диапазоне. Это сценарная, а не прогнозная модель.</p></div></div>
+        <div class="investment-grid"><div class="investment-inputs"><label>CAPEX, ₽<input id="invCapex" type="number" value="340000"></label><label>Годовой эффект, ₽<input id="invCash" type="number" value="567840"></label><label>Горизонт, лет<input id="invYears" type="number" min="1" max="10" value="3"></label><label>Ставка, %<input id="invRate" type="number" value="20"></label><label>Неопределённость, %<input id="invRisk" type="range" min="0" max="50" value="20"><output id="invRiskOut">20%</output><small class="field-help">Относительный разброс годового эффекта в симуляции. 20% означает, что экономия в отдельных сценариях отклоняется от введённого значения.</small></label><button id="runMonte" class="button primary" type="button">Запустить 10 000 сценариев</button></div><div><div class="investment-kpis"><div><small>NPV</small><strong id="invNpv"></strong></div><div><small>IRR</small><strong id="invIrr"></strong></div><div><small>DPP</small><strong id="invDpp"></strong></div><div><small>P(NPV &gt; 0)</small><strong id="invProb">—</strong></div></div><canvas id="monteChart" width="720" height="280" aria-label="Распределение NPV"></canvas><p class="chart-note">Монте-Карло варьирует именно годовой эффект. Чем выше неопределённость, тем шире распределение NPV и тем важнее вероятность P(NPV &gt; 0).</p></div></div>
       </div>
     </section>
 
