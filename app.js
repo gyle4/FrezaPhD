@@ -80,6 +80,82 @@ function runMonte(){const c=+$('#invCapex').value,cf=+$('#invCash').value,y=+$('
 function drawHistogram(arr){const cv=$('#monteChart'),ctx=cv.getContext('2d'),w=cv.width,h=cv.height,bins=40,min=arr[0],max=arr.at(-1),counts=Array(bins).fill(0);arr.forEach(x=>counts[Math.min(bins-1,Math.floor((x-min)/(max-min||1)*bins))]++);const peak=Math.max(...counts);ctx.clearRect(0,0,w,h);ctx.strokeStyle='#185a40';ctx.beginPath();ctx.moveTo(35,h-30);ctx.lineTo(w-15,h-30);ctx.stroke();counts.forEach((n,i)=>{const bh=n/peak*(h-65);ctx.fillStyle='#32d68b';ctx.fillRect(36+i*(w-55)/bins,h-31-bh,(w-55)/bins-2,bh)});const zero=(0-min)/(max-min||1)*(w-55)+35;if(zero>35&&zero<w-15){ctx.strokeStyle='#d7b567';ctx.beginPath();ctx.moveTo(zero,20);ctx.lineTo(zero,h-30);ctx.stroke()}}
 $('#runMonte').addEventListener('click',runMonte);runMonte();
 
+// Integrated decision-support model. The update mechanics and base dataset are
+// preserved from "Аспирантура/index — Мага сайт.html"; scenarios only transform
+// CAPEX and annual effect before the same NPV calculation is performed.
+const NPV_AF=2.106481,NPV_BASE_VOLUME=40000,NPV_SCALE=2100000;
+const NPV_BASE_MEASURES=[
+  {id:'М1',sub:'30° → 54°',capex:372000,cf:512160,color:'#4ad99a'},
+  {id:'М2',sub:'30° → DIAREX 48°',capex:340000,cf:567840,color:'#d7b567'},
+  {id:'М3',sub:'30° → p-System 70°',capex:1200000,cf:843360,color:'#66b4ff'},
+  {id:'М6',sub:'30° → SmartJointer 35°',capex:220000,cf:288960,color:'#b98bff'}
+];
+const scenarioFactors={base:{effect:1,capex:1,label:'базовый'},optimistic:{effect:1.15,capex:.95,label:'оптимистичный'},pessimistic:{effect:.8,capex:1.1,label:'пессимистичный'}};
+let wizardStep=0,latestDecision=null;
+function decisionFactors(){
+  const key=$('#npvScenario').value;
+  return key==='custom'?{effect:+$('#effectFactor').value/100,capex:+$('#capexFactor').value/100,label:'пользовательский'}:scenarioFactors[key];
+}
+function decisionMeasures(){
+  const measures=NPV_BASE_MEASURES.map(x=>({...x}));
+  if($('#m2Variant').value==='pitch')Object.assign(measures[1],{capex:456000,cf:714960,sub:'30° → DIAREX 48° + резерв'});
+  return measures;
+}
+function measureNpv(volumeValue,measure,factors=decisionFactors()){
+  return -measure.capex*factors.capex+NPV_AF*measure.cf*factors.effect*(volumeValue/NPV_BASE_VOLUME);
+}
+function breakEven(measure,factors=decisionFactors()){
+  return measure.capex*factors.capex*NPV_BASE_VOLUME/(NPV_AF*measure.cf*factors.effect);
+}
+function signedRub(value){const n=Math.round(value),space=String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');return `${n<0?'−':''}${space} ₽`}
+function renderWizard(){
+  const volumeValue=+$('#npvVolume').value,tech=$('#decisionTech').value,factors=decisionFactors(),measures=decisionMeasures();
+  const ranked=measures.map(m=>({...m,npv:measureNpv(volumeValue,m,factors)})).sort((a,b)=>b.npv-a.npv),best=ranked[0];
+  const contents=[
+    [`Предприятие`,`Задайте масштаб: он определяет, успеет ли более дорогой инструмент выработать свой ресурс.`,[['Объём',`${fmt(volumeValue)} м/мес`],['Сегмент',scaleAdvice(volumeValue)],['База','40 000 м/мес']]],
+    [`Технология кромки`,`EVA, PUR и laser не равнозначны. Чем выше требования к шву, тем важнее стабильность подготовленного торца.`,[['Выбрано',tech],['Статус','требует валидации'],['Цель','стабильный шов']]],
+    [`Геометрия и комплектация`,`Сравниваются не ценники, а полные мероприятия с резервом, ресурсом и сервисом.`,[['Вариант М2',$('#m2Variant').selectedOptions[0].textContent.split(' — ')[0]],['Альтернативы','М1 / М2 / М3 / М6'],['Лидер по NPV',best.id]]],
+    [`Экономический сценарий`,`NPV пересчитывается при каждом изменении объёма, CAPEX и годового эффекта.`,[['Сценарий',factors.label],['Эффект',`${fmt(factors.effect*100)}%`],['CAPEX',`${fmt(factors.capex*100)}%`]]],
+    [`Рекомендация`,`Система объясняет выбор и отделяет расчётную экономику от технологических эффектов, которые ещё предстоит доказать.`,[['Лидер',best.id],['NPV',signedRub(best.npv)],['Технология',tech]]]
+  ];
+  const [title,text,readouts]=contents[wizardStep];
+  $('#wizardContent').innerHTML=`<h3>${title}</h3><p>${text}</p><div class="wizard-readout">${readouts.map(x=>`<div><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('')}</div>`;
+  document.querySelectorAll('[data-wizard]').forEach((b,i)=>b.classList.toggle('active',i===wizardStep));
+  $('#wizardPrev').disabled=wizardStep===0;$('#wizardNext').disabled=wizardStep===4;$('#wizardNext').textContent=wizardStep===3?'Показать вывод':'Дальше';
+}
+function renderBreakEven(measures,factors,volumeValue){
+  const W=720,H=330,L=52,R=18,T=22,B=46,x=v=>L+(v-2000)/(80000-2000)*(W-L-R);
+  const samples=[];measures.forEach(m=>{for(let v=2000;v<=80000;v+=2000)samples.push(measureNpv(v,m,factors))});
+  const min=Math.min(-100000,...samples),max=Math.max(100000,...samples),y=n=>T+(max-n)/(max-min)*(H-T-B);
+  const grid=[0,.25,.5,.75,1].map(k=>{const val=min+(max-min)*k;return `<line class="grid" x1="${L}" y1="${y(val)}" x2="${W-R}" y2="${y(val)}"/><text x="${L-5}" y="${y(val)+3}" text-anchor="end">${fmt(val/1000000,1)}м</text>`}).join('');
+  const lines=measures.map(m=>{const points=[];for(let v=2000;v<=80000;v+=2000)points.push(`${x(v)},${y(measureNpv(v,m,factors))}`);return `<polyline points="${points.join(' ')}" fill="none" stroke="${m.color}" stroke-width="3"/>`}).join('');
+  const thresholds=measures.map(m=>{const v=breakEven(m,factors);return v>=2000&&v<=80000?`<circle cx="${x(v)}" cy="${y(0)}" r="5" fill="${m.color}"/><text x="${x(v)}" y="${y(0)+18}" text-anchor="middle">${m.id}</text>`:''}).join('');
+  const labels=[2000,20000,40000,60000,80000].map(v=>`<text x="${x(v)}" y="${H-16}" text-anchor="middle">${fmt(v)}</text>`).join('');
+  $('#breakEvenChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}">${grid}<line class="axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/><line class="zero" x1="${L}" y1="${y(0)}" x2="${W-R}" y2="${y(0)}"/><line class="current" x1="${x(volumeValue)}" y1="${T}" x2="${x(volumeValue)}" y2="${H-B}"/>${lines}${thresholds}${labels}<text x="${W/2}" y="${H-2}" text-anchor="middle">объём, пог. м/мес</text></svg><div class="be-legend">${measures.map(m=>`<span><i style="background:${m.color}"></i>${m.id}: ${fmt(breakEven(m,factors))} м/мес</span>`).join('')}</div>`;
+}
+function renderDecisionSystem(sync=true){
+  const volumeValue=+$('#npvVolume').value,factors=decisionFactors(),measures=decisionMeasures();
+  $('#npvVolumeOut').textContent=`${fmt(volumeValue)} пог. м/мес`;
+  $('#customScenario').hidden=$('#npvScenario').value!=='custom';$('#effectFactorOut').textContent=`${$('#effectFactor').value}%`;$('#capexFactorOut').textContent=`${$('#capexFactor').value}%`;
+  const results=measures.map(m=>({...m,npv:measureNpv(volumeValue,m,factors),threshold:breakEven(m,factors)})),best=results.reduce((a,b)=>b.npv>a.npv?b:a),profitable=results.filter(x=>x.npv>=0);
+  $('#npvBars').innerHTML=results.map(m=>`<div class="npv-row${m.id===best.id?' leader':''}"><div class="npv-name"><b>${m.id}</b><small>${m.sub}</small></div><div class="npv-track"><div class="npv-fill${m.npv<0?' negative':''}" style="width:${Math.min(Math.abs(m.npv)/NPV_SCALE,1)*100}%"></div></div><div class="npv-value${m.npv<0?' negative':''}">${signedRub(m.npv)}</div></div>`).join('');
+  $('#npvSummary').innerHTML=profitable.length?`При <b>${fmt(volumeValue)}</b> пог. м/мес окупаются: <b>${profitable.map(x=>x.id).join(', ')}</b>. Лучший по NPV — <b>${best.id}</b>.`:`При <b>${fmt(volumeValue)}</b> пог. м/мес ни одно мероприятие не выходит в плюс.`;
+  $('#npvMethod').textContent=`Сценарий: ${factors.label}. Горизонт 3 года, ставка 20%. Формула: NPV = −CAPEX + 2,106481 × CF × (V / 40 000).`;
+  renderBreakEven(measures,factors,volumeValue);
+  const budget=+$('#mapCapex').value*1000,tech=$('#decisionTech').value,budgetFit=best.capex*factors.capex<=budget;
+  $('#decisionHeadline').textContent=`${best.id} — лидер по NPV при текущих условиях`;
+  $('#decisionReasons').innerHTML=`<div><b>Экономика</b><span>NPV ${signedRub(best.npv)}; порог ${fmt(best.threshold)} м/мес.</span></div><div><b>CAPEX</b><span>${fmt(best.capex*factors.capex)} ₽ — ${budgetFit?'укладывается':'не укладывается'} в заданный лимит ${fmt(budget)} ₽.</span></div><div><b>Технология</b><span>${tech}: требования к торцу должны быть подтверждены экспериментом.</span></div>`;
+  $('#decisionCaveat').textContent=`Выбор ${best.id} — расчётная экономическая рекомендация, а не доказанное преимущество качества шва.`;
+  latestDecision={volume:volumeValue,factors,results,best,profitable,tech,m2Variant:$('#m2Variant').value,scenario:$('#npvScenario').value};
+  if(sync){if(volumeValue<=+volume.max){volume.value=volumeValue;renderCosts()}if(volumeValue<=+$('#mapVolume').max){$('#mapVolume').value=volumeValue;mapRecommendation()}$('#decisionTech').value=tech;}
+  renderWizard();
+}
+function loadDecisionUrl(){const q=new URLSearchParams(location.search);if(q.has('v'))$('#npvVolume').value=Math.min(80000,Math.max(2000,+q.get('v')||40000));if(['masters','pitch'].includes(q.get('m2')))$('#m2Variant').value=q.get('m2');if(['base','optimistic','pessimistic','custom'].includes(q.get('s')))$('#npvScenario').value=q.get('s');if(q.has('ef'))$('#effectFactor').value=q.get('ef');if(q.has('cf'))$('#capexFactor').value=q.get('cf');if(q.has('tech')&&[...$('#decisionTech').options].some(o=>o.value===q.get('tech')))$('#decisionTech').value=q.get('tech')}
+document.querySelectorAll('[data-wizard]').forEach(b=>b.addEventListener('click',()=>{wizardStep=+b.dataset.wizard;renderWizard()}));$('#wizardPrev').addEventListener('click',()=>{wizardStep=Math.max(0,wizardStep-1);renderWizard()});$('#wizardNext').addEventListener('click',()=>{wizardStep=Math.min(4,wizardStep+1);renderWizard()});
+['npvVolume','m2Variant','npvScenario','decisionTech','effectFactor','capexFactor'].forEach(id=>$('#'+id).addEventListener('input',()=>renderDecisionSystem()));
+$('#shareCalculation').addEventListener('click',async()=>{const q=new URLSearchParams({v:$('#npvVolume').value,m2:$('#m2Variant').value,s:$('#npvScenario').value,tech:$('#decisionTech').value,ef:$('#effectFactor').value,cf:$('#capexFactor').value}),url=`${location.origin}${location.pathname}?${q}#decision-system`;history.replaceState(null,'',url);try{await navigator.clipboard.writeText(url);$('#shareStatus').textContent='Ссылка скопирована.'}catch{$('#shareStatus').textContent='Ссылка сохранена в адресной строке.'}});
+loadDecisionUrl();renderDecisionSystem(false);
+
 function escapeHtml(value){
   return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
 }
@@ -93,6 +169,7 @@ function buildCalculationReport(){
   mapRecommendation();
   investment();
   runMonte();
+  renderDecisionSystem(false);
 
   const monthlyVolume = Number(volume.value);
   const cutterRows = cutters.map(c => {
@@ -124,6 +201,15 @@ function buildCalculationReport(){
   const years = Number($('#invYears').value);
   const rate = Number($('#invRate').value);
   const risk = Number($('#invRisk').value);
+  const decision = latestDecision;
+  const decisionRows = decision.results.map(item => `<tr>
+    <td>${item.id}</td>
+    <td>${escapeHtml(item.sub)}</td>
+    <td>${reportNumber(item.capex * decision.factors.capex)} ₽</td>
+    <td>${reportNumber(item.cf * decision.factors.effect)} ₽/год</td>
+    <td>${reportNumber(item.threshold)} м/мес</td>
+    <td class="${item.npv >= 0 ? 'positive' : 'negative'}"><b>${signedRub(item.npv)}</b></td>
+  </tr>`).join('');
 
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8">
     <title>Расчётный отчёт — сравнение фрез</title>
@@ -136,7 +222,7 @@ function buildCalculationReport(){
       .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.metric{padding:15px;border:1px solid var(--line);border-radius:8px;background:var(--pale)}
       .metric small,.metric strong{display:block}.metric small{color:var(--muted)}.metric strong{margin-top:5px;font-size:19px;color:var(--green)}
       table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 7px;border:1px solid var(--line);text-align:right}th{background:var(--pale);color:#395348}th:first-child,td:first-child{text-align:left}
-      .result{padding:15px 18px;border-left:4px solid var(--gold);background:#fbf7eb}.result b{color:var(--gold)}
+      .result{padding:15px 18px;border-left:4px solid var(--gold);background:#fbf7eb}.result b{color:var(--gold)}.positive{color:var(--green)}.negative{color:#b44848}
       .formula,.note{color:var(--muted);font-size:12px}.formula{padding:10px 13px;background:#f5f7f6}
       footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
       .print{position:fixed;right:20px;bottom:20px;padding:12px 18px;border:0;border-radius:7px;background:var(--green);color:#fff;font-weight:bold;cursor:pointer}
@@ -153,13 +239,23 @@ function buildCalculationReport(){
       </div>
       <div class="result"><span>Предварительная область: </span><b>${escapeHtml($('#mapResult').textContent)}</b><p>${escapeHtml($('#mapNote').textContent)}</p></div>
 
-      <h2>2. Сравнение стоимости владения</h2>
+      <h2>2. NPV мероприятий из магистерской модели</h2>
+      <div class="summary">
+        <div class="metric"><small>Объём</small><strong>${reportNumber(decision.volume)} м/мес</strong></div>
+        <div class="metric"><small>Вариант М2</small><strong>${decision.m2Variant === 'masters' ? 'база 340 тыс. ₽' : 'комплект 456 тыс. ₽'}</strong></div>
+        <div class="metric"><small>Сценарий / технология</small><strong>${escapeHtml(decision.factors.label)} / ${escapeHtml(decision.tech)}</strong></div>
+      </div>
+      <table><thead><tr><th>Код</th><th>Переход</th><th>CAPEX</th><th>Годовой эффект</th><th>Порог</th><th>NPV за 3 года</th></tr></thead><tbody>${decisionRows}</tbody></table>
+      <p class="formula">NPV = −CAPEX + 2,106481 × CF × (V / 40 000). Горизонт — 3 года, ставка — 20 %.</p>
+      <div class="result">Окупаются: <b>${decision.profitable.length ? decision.profitable.map(item => item.id).join(', ') : 'ни одно'}</b>. Лидер по NPV: <b>${decision.best.id} — ${signedRub(decision.best.npv)}</b>.</div>
+
+      <h2>3. Сравнение стоимости владения</h2>
       <p>Расчётный объём: <b>${reportNumber(monthlyVolume)} пог. м/мес</b>.</p>
       <table><thead><tr><th>Фреза</th><th>Угол</th><th>Цена</th><th>Переточек</th><th>Цена переточки</th><th>Резерв</th><th>Пробег</th><th>Стоимость 1 м</th><th>В месяц</th></tr></thead><tbody>${cutterRows}</tbody></table>
       <p class="formula">TCO на 1 пог. м = (цена фрезы + количество переточек × цена переточки + резерв) ÷ полный пробег.</p>
       <div class="result">Минимальная расчётная стоимость владения: <b>${cheapestSummary}</b>.<br>Область по масштабу: <b>${escapeHtml($('#scaleRecommendation').textContent)}</b>.</div>
 
-      <h2>3. Инвестиционный расчёт</h2>
+      <h2>4. Инвестиционный расчёт</h2>
       <div class="summary">
         <div class="metric"><small>CAPEX</small><strong>${reportNumber(capex)} ₽</strong></div>
         <div class="metric"><small>Годовой эффект</small><strong>${reportNumber(annualEffect)} ₽</strong></div>

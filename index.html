@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="wow.css">
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="anatomy.css">
+  <link rel="stylesheet" href="decision.css">
 </head>
 <body>
   <div class="grid-bg" aria-hidden="true"></div>
@@ -23,7 +24,7 @@
   <header class="topbar">
     <a class="brand" href="#top"><span class="brand-mark">λ</span><span>Наиль Мурзакаев<small>исследовательский проект • СПбГЛТУ</small></span></a>
     <nav aria-label="Основная навигация">
-      <a href="#logic">Логика</a><a href="#research">Исследование</a><a href="#results">Задел</a><a href="#lab">Лаборатория</a><a href="#calculator">Калькулятор</a>
+      <a href="#logic">Логика</a><a href="#research">Исследование</a><a href="#results">Задел</a><a href="#lab">Лаборатория</a><a href="#decision-system">Выбор</a><a href="#calculator">TCO</a>
     </nav>
   </header>
 
@@ -147,6 +148,50 @@
       </div>
     </section>
 
+    <section class="section decision-system" id="decision-system">
+      <div class="wrap">
+        <p class="eyebrow">СИСТЕМА ПРИНЯТИЯ РЕШЕНИЙ</p>
+        <h2>От параметров предприятия — к обоснованной рекомендации</h2>
+        <p class="intro">Пять шагов связывают масштаб, технологию кромки, инструмент и экономику. Все технологические эффекты пока помечены как предстоящая экспериментальная проверка.</p>
+
+        <div class="wizard" aria-label="Пять шагов расчёта">
+          <div class="wizard-steps" role="tablist">
+            <button class="active" data-wizard="0" type="button"><span>01</span>Предприятие</button>
+            <button data-wizard="1" type="button"><span>02</span>Технология</button>
+            <button data-wizard="2" type="button"><span>03</span>Фрезы</button>
+            <button data-wizard="3" type="button"><span>04</span>Экономика</button>
+            <button data-wizard="4" type="button"><span>05</span>Рекомендация</button>
+          </div>
+          <div class="wizard-panel"><div id="wizardContent"></div><div class="wizard-actions"><button id="wizardPrev" type="button">Назад</button><button id="wizardNext" type="button">Дальше</button></div></div>
+        </div>
+
+        <div class="decision-config">
+          <label>Комплектация М2<select id="m2Variant"><option value="masters">Базовая модель — CAPEX 340 тыс. ₽</option><option value="pitch">Полная комплектация — CAPEX 456 тыс. ₽</option></select></label>
+          <label>Сценарий<select id="npvScenario"><option value="base">Базовый</option><option value="optimistic">Оптимистичный</option><option value="pessimistic">Пессимистичный</option><option value="custom">Пользовательский</option></select></label>
+          <label>Технология<select id="decisionTech"><option>EVA</option><option selected>PUR</option><option>Laser / zero joint</option></select></label>
+        </div>
+        <div class="custom-scenario" id="customScenario" hidden>
+          <label>Коэффициент годового эффекта<input id="effectFactor" type="range" min="50" max="150" step="5" value="100"><output id="effectFactorOut">100%</output></label>
+          <label>Коэффициент CAPEX<input id="capexFactor" type="range" min="80" max="130" step="5" value="100"><output id="capexFactorOut">100%</output></label>
+        </div>
+
+        <div class="npv-lab">
+          <div class="npv-volume"><label for="npvVolume">Объём кромки в месяц <output id="npvVolumeOut">40 000 пог. м/мес</output></label><input id="npvVolume" type="range" min="2000" max="80000" step="500" value="40000"><div class="range-marks"><span>2 000</span><span>40 000</span><span>80 000</span></div></div>
+          <div id="npvBars" class="npv-bars"></div>
+          <div id="npvSummary" class="npv-summary"></div>
+          <p id="npvMethod" class="npv-method"></p>
+        </div>
+
+        <div class="break-even-grid">
+          <div><p class="eyebrow">ГРАФИК БЕЗУБЫТОЧНОСТИ</p><h3>Где NPV переходит через ноль</h3><p>Линии показывают расчётный NPV при изменении месячного объёма. Маркеры на оси — пороги окупаемости.</p></div>
+          <div id="breakEvenChart" class="break-even-chart" role="img" aria-label="График NPV мероприятий по объёму"></div>
+        </div>
+
+        <div class="recommendation-explain"><p class="eyebrow">ПОЧЕМУ ЭТОТ ВАРИАНТ</p><h3 id="decisionHeadline"></h3><div id="decisionReasons" class="decision-reasons"></div><p id="decisionCaveat" class="decision-caveat"></p></div>
+        <div class="share-row"><button id="shareCalculation" class="button primary" type="button">Скопировать ссылку на расчёт</button><span id="shareStatus" aria-live="polite"></span></div>
+      </div>
+    </section>
+
     <section class="section investment-section">
       <div class="wrap"><p class="eyebrow">ИНВЕСТИЦИОННАЯ ЛАБОРАТОРИЯ</p><h2>Проверьте мероприятие на риск</h2>
         <div class="investment-grid"><div class="investment-inputs"><label>CAPEX, ₽<input id="invCapex" type="number" value="340000"></label><label>Годовой эффект, ₽<input id="invCash" type="number" value="567840"></label><label>Горизонт, лет<input id="invYears" type="number" min="1" max="10" value="3"></label><label>Ставка, %<input id="invRate" type="number" value="20"></label><label>Неопределённость, %<input id="invRisk" type="range" min="0" max="50" value="20"><output id="invRiskOut">20%</output></label><button id="runMonte" class="button primary" type="button">Запустить 10 000 сценариев</button></div><div><div class="investment-kpis"><div><small>NPV</small><strong id="invNpv"></strong></div><div><small>IRR</small><strong id="invIrr"></strong></div><div><small>DPP</small><strong id="invDpp"></strong></div><div><small>P(NPV &gt; 0)</small><strong id="invProb">—</strong></div></div><canvas id="monteChart" width="720" height="280" aria-label="Распределение NPV"></canvas><p class="chart-note">Монте-Карло варьирует годовой эффект в заданном диапазоне. Это сценарная, а не прогнозная модель.</p></div></div>
@@ -172,6 +217,7 @@
     <section class="section evidence">
       <div class="wrap"><p class="eyebrow">ПРИНЦИП ДОКАЗАТЕЛЬНОСТИ</p><h2>Что известно, а что ещё предстоит проверить</h2>
         <div class="legend"><div class="known"><b>Установлено расчётом</b><p>TCO, инвестиционная модель, чувствительность и влияние масштаба.</p></div><div class="expected"><b>Ожидаемый эффект</b><p>Снижение сил, рост допустимой подачи, изменение шума и микрорельефа.</p></div><div class="test"><b>Предстоит проверить</b><p>Связь λ → торец → PUR/laser → прочность и влагостойкость.</p></div></div>
+        <div class="science-dashboard"><div><span>01</span><b>Ra / Rz</b><small>микрорельеф торца</small><em>данные ожидаются</em></div><i>→</i><div><span>02</span><b>Сколы</b><small>дефекты покрытия</small><em>данные ожидаются</em></div><i>→</i><div><span>03</span><b>Прочность PUR</b><small>отслаивание / адгезия</small><em>данные ожидаются</em></div><i>→</i><div><span>04</span><b>Вода 24/72 ч</b><small>проникновение и набухание</small><em>данные ожидаются</em></div><i>→</i><div><span>05</span><b>Статистика</b><small>CI, ANOVA / регрессия</small><em>методика готовится</em></div></div>
       </div>
     </section>
   </main>
