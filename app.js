@@ -21,19 +21,28 @@ let cutters = [
 ];
 const fields = ['name','angle','price','sharpens','sharpenPrice','reserve','mileage'];
 const rows = $('#cutterRows');
-function unitCost(c){ return (c.price + c.sharpens*c.sharpenPrice + c.reserve) / (c.mileage*1000); }
+function unitCost(c){
+  const values=[c.price,c.sharpens,c.sharpenPrice,c.reserve,c.mileage].map(Number);
+  if(values.some(v=>!Number.isFinite(v)||v<0)||values[4]<=0)return NaN;
+  return (values[0]+values[1]*values[2]+values[3])/(values[4]*1000);
+}
+function costLabel(value,digits=0,suffix=' ₽'){return Number.isFinite(value)?`${fmt(value,digits)}${suffix}`:'—'}
 function renderRows(){
-  rows.innerHTML = cutters.map((c,i)=>`<tr>${fields.map(f=>`<td><input data-i="${i}" data-field="${f}" type="${f==='name'?'text':'number'}" value="${c[f]}"></td>`).join('')}<td class="unit-cost">${fmt(unitCost(c),2)} ₽</td></tr>`).join('');
+  rows.innerHTML = cutters.map((c,i)=>`<tr>${fields.map(f=>`<td><input data-i="${i}" data-field="${f}" type="${f==='name'?'text':'number'}"${f==='name'?'':' min="0"'} value="${c[f]}"></td>`).join('')}<td class="unit-cost">${costLabel(unitCost(c),2)}</td></tr>`).join('');
   renderCosts();
 }
-rows.addEventListener('input', e=>{ const t=e.target; if(!t.dataset.field)return; cutters[+t.dataset.i][t.dataset.field]=t.type==='number'?Number(t.value):t.value; renderCosts(); rows.children[+t.dataset.i].lastElementChild.textContent=`${fmt(unitCost(cutters[+t.dataset.i]),2)} ₽`; });
+rows.addEventListener('input', e=>{ const t=e.target; if(!t.dataset.field)return; cutters[+t.dataset.i][t.dataset.field]=t.type==='number'?Number(t.value):t.value; renderCosts(); rows.children[+t.dataset.i].lastElementChild.textContent=costLabel(unitCost(cutters[+t.dataset.i]),2); });
 $('#addCutter').addEventListener('click',()=>{cutters.push({name:'Новая фреза',angle:35,price:150000,sharpens:4,sharpenPrice:6000,reserve:150000,mileage:500});renderRows()});
 const volume = $('#volumeRange');
 function scaleAdvice(v){if(v<4000)return 'около 30°';if(v<18000)return '30–35°';if(v<60000)return '35–54°';if(v<250000)return '48–70°';return 'высокопроизводительные системы, включая 70°'}
 function renderCosts(){
   const v=Number(volume.value); $('#volumeOut').textContent=`${fmt(v)} пог. м`;
-  const costs=cutters.map(c=>unitCost(c)*v), max=Math.max(...costs,1);
-  $('#costBars').innerHTML=cutters.map((c,i)=>`<div class="cost-row"><b>${c.name||'Без названия'}</b><div class="bar-track"><div class="bar-fill" style="width:${Math.max(3,costs[i]/max*100)}%"></div></div><strong>${fmt(costs[i])} ₽/мес</strong></div>`).join('');
+  const costs=cutters.map(c=>unitCost(c)*v);
+  const referenceVolume=Math.max(100000,v);
+  const validScaleValues=cutters.map(c=>unitCost(c)*referenceVolume).filter(Number.isFinite);
+  const scaleMax=Math.max(...validScaleValues,1);
+  $('#costBars').innerHTML=cutters.map((c,i)=>`<div class="cost-row"><b>${c.name||'Без названия'}</b><div class="bar-track"><div class="bar-fill" style="width:${Number.isFinite(costs[i])?Math.max(2,Math.min(100,costs[i]/scaleMax*100)):0}%"></div></div><strong>${Number.isFinite(costs[i])?`${fmt(costs[i])} ₽/мес`:'—'}</strong></div>`).join('');
+  $('#costScaleNote').textContent=`Длина полосы — абсолютные затраты. Правая граница шкалы: ${fmt(scaleMax)} ₽/мес.`;
   $('#scaleRecommendation').textContent=scaleAdvice(v);
 }
 volume.addEventListener('input',renderCosts); renderRows();
@@ -97,12 +106,16 @@ function buildCalculationReport(){
       <td>${reportNumber(c.sharpenPrice)} ₽</td>
       <td>${reportNumber(c.reserve)} ₽</td>
       <td>${reportNumber(c.mileage)} тыс. м</td>
-      <td><b>${reportNumber(perMeter, 2)} ₽</b></td>
-      <td><b>${reportNumber(monthlyCost)} ₽</b></td>
+      <td><b>${costLabel(perMeter,2)}</b></td>
+      <td><b>${costLabel(monthlyCost)}</b></td>
     </tr>`;
   }).join('');
 
-  const cheapest = cutters.reduce((best, cutter) => unitCost(cutter) < unitCost(best) ? cutter : best, cutters[0]);
+  const validCutters = cutters.filter(c=>Number.isFinite(unitCost(c)));
+  const cheapest = validCutters.reduce((best,cutter)=>!best||unitCost(cutter)<unitCost(best)?cutter:best,null);
+  const cheapestSummary = cheapest
+    ? `${escapeHtml(cheapest.name)} — ${costLabel(unitCost(cheapest),2,' ₽/пог. м')}`
+    : 'нет корректно заполненных вариантов';
   const reportDate = new Intl.DateTimeFormat('ru-RU', {dateStyle:'long', timeStyle:'short'}).format(new Date());
   const mapVolume = Number($('#mapVolume').value);
   const mapCapex = Number($('#mapCapex').value);
@@ -144,7 +157,7 @@ function buildCalculationReport(){
       <p>Расчётный объём: <b>${reportNumber(monthlyVolume)} пог. м/мес</b>.</p>
       <table><thead><tr><th>Фреза</th><th>Угол</th><th>Цена</th><th>Переточек</th><th>Цена переточки</th><th>Резерв</th><th>Пробег</th><th>Стоимость 1 м</th><th>В месяц</th></tr></thead><tbody>${cutterRows}</tbody></table>
       <p class="formula">TCO на 1 пог. м = (цена фрезы + количество переточек × цена переточки + резерв) ÷ полный пробег.</p>
-      <div class="result">Минимальная расчётная стоимость владения: <b>${escapeHtml(cheapest.name)} — ${reportNumber(unitCost(cheapest),2)} ₽/пог. м</b>.<br>Область по масштабу: <b>${escapeHtml($('#scaleRecommendation').textContent)}</b>.</div>
+      <div class="result">Минимальная расчётная стоимость владения: <b>${cheapestSummary}</b>.<br>Область по масштабу: <b>${escapeHtml($('#scaleRecommendation').textContent)}</b>.</div>
 
       <h2>3. Инвестиционный расчёт</h2>
       <div class="summary">
